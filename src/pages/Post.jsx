@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { useSearch } from "@tanstack/react-router";
+
+import { fetchPost, likeAPost } from "../lib/api";
+import { faker } from "@faker-js/faker";
 
 const initialPostState = {
   title: "No post found",
@@ -9,18 +13,20 @@ const initialPostState = {
 
 /**
  * Displays a single post
- * @see https://docs.noroff.dev/social-endpoints/posts
+ * @see
  */
 export default function PostPage() {
   const [post, setPost] = useState(initialPostState);
+  const { id } = useSearch();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // TIP: Get the ID from the search params in the URL
-        // TIP: Fetch the post from the API using the ID
-        // TIP: Set the post in state
+        const res = await fetchPost(id);
+
+        setPost(res);
       } catch (error) {
+        console.log(error);
         // TIP: Handle errors from the API
       } finally {
         // TIP: Set loading to false
@@ -28,14 +34,41 @@ export default function PostPage() {
     };
 
     fetchData();
-  }, []);
+  }, [id]);
+
+  const lickPost = async () => {
+    console.warn("reactioons count", post.reactions);
+    try {
+      const data = await likeAPost({
+        id,
+        reactions: post.reactions + 1,
+      });
+      setPost(data);
+    } catch (error) {
+      console.warn("Could not update post");
+    }
+  };
 
   return (
-    <>
+    <div className="p-4 flex flex-col items-center">
       <h1>A single post</h1>
       <section>
-        <h2>{post?.title}</h2>
+        <div className="card w-96 bg-base-100 shadow-xl">
+          <figure>
+            <img src={faker.image.url()} alt="Shoes" />
+          </figure>
+          <div className="card-body">
+            <h2 className="card-title">{post?.title}</h2>
+            <p>{post?.body}</p>
+
+            <div className="card-actions justify-end">
+              <button className="btn btn-primary" onClick={lickPost}>
+                {post?.reactions} Like
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
-    </>
+    </div>
   );
 }

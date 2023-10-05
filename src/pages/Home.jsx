@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
+import { Link } from "@tanstack/react-router";
 
 import { supabase, addPost } from "../lib/api";
 
@@ -60,9 +61,31 @@ export default function HomePage() {
       <h1>Home Page</h1>
 
       <section>
-        {posts.map((post) => (
-          <div key={post.id}>{post?.title}</div>
-        ))}
+        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          {posts.map((post) => (
+            <div key={post.id} className="group relative">
+              <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+                <img
+                  src={post?.imageSrc ?? faker.image.url()}
+                  alt={post?.imageAlt}
+                  className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                />
+              </div>
+              <div className="mt-4 flex justify-between">
+                <div>
+                  <h3 className="text-sm ">
+                    <Link to={`/posts/${post.id}`} search={{ id: post.id }}>
+                      <span aria-hidden="true" className="absolute inset-0" />
+                      {post.name}
+                    </Link>
+                  </h3>
+                  <p className="mt-1 text-sm ">{post.title}</p>
+                </div>
+                <p className="text-sm font-medium ">{post.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section>
@@ -74,7 +97,7 @@ export default function HomePage() {
               alt="Your Company"
             />
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight ">
-              Sign in to your account
+              Create a post
             </h2>
           </div>
 
@@ -93,7 +116,7 @@ export default function HomePage() {
                     name="name"
                     type="name"
                     autoComplete="name"
-                    className="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder: focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
@@ -113,7 +136,7 @@ export default function HomePage() {
                     name="title"
                     type="title"
                     autoComplete="current-title"
-                    className="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder: focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>

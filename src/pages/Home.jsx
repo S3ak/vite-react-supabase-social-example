@@ -18,9 +18,27 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const makeANewPost = async (event) => {
+    event.preventDefault();
+
+    const { author_name, title } = event.target.elements;
+
+    const { data, error } = await supabase
+      .from("posts")
+      .insert([{ name: author_name.value, title: title.value }])
+      .select();
+
+    console.log(data, error);
+
+    if (error) {
+      setError(error);
+      return;
+    }
+
+    setPosts((prevPosts) => [...data, ...prevPosts]);
+  };
+
   useEffect(() => {
-    // const session = supabase.auth.session();
-    // console.log("session", session);
     const fetchPosts = async () => {
       try {
         setIsLoading(true);
@@ -61,17 +79,27 @@ export default function HomePage() {
       <h1>Home Page</h1>
 
       <section>
-        <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        <div className="grid grid-cols-1 mt-6 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          <form onSubmit={(event) => makeANewPost(event)}>
+            <label htmlFor="author_name">Name</label>
+            <input type="text" name="author_name" id="author_name" />
+            <label htmlFor="title">Title</label>
+            <input type="text" name="title" id="title" />
+            <button className="text-2xl font-bold" type="submit">
+              Make A post
+            </button>
+          </form>
+
           {posts.map((post) => (
-            <div key={post.id} className="group relative">
-              <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
+            <div key={post.id} className="relative group">
+              <div className="w-full overflow-hidden bg-gray-200 rounded-md aspect-h-1 aspect-w-1 lg:aspect-none group-hover:opacity-75 lg:h-80">
                 <img
                   src={post?.imageSrc ?? faker.image.url()}
                   alt={post?.imageAlt}
-                  className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                  className="object-cover object-center w-full h-full lg:h-full lg:w-full"
                 />
               </div>
-              <div className="mt-4 flex justify-between">
+              <div className="flex justify-between mt-4">
                 <div>
                   <h3 className="text-sm ">
                     <Link to={`/posts/${post.id}`} search={{ id: post.id }}>
@@ -89,14 +117,14 @@ export default function HomePage() {
       </section>
 
       <section>
-        <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="flex flex-col justify-center flex-1 min-h-full px-6 py-12 lg:px-8">
           <div className="sm:\mx-auto sm:w-full sm:max-w-sm">
             <img
-              className="mx-auto h-10 w-auto"
+              className="w-auto h-10 mx-auto"
               src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
               alt="Your Company"
             />
-            <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight ">
+            <h2 className="mt-10 text-2xl font-bold leading-9 tracking-tight text-center ">
               Create a post
             </h2>
           </div>

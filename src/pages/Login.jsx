@@ -1,3 +1,4 @@
+import { supabase } from "../lib/api";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -18,6 +19,17 @@ export default function LoginPage() {
     }, 2000);
   };
 
+  const signInWithOAuth = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+      });
+      console.log(data, error);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleOnSubmit = async (event) => {
     event.preventDefault();
 
@@ -29,16 +41,9 @@ export default function LoginPage() {
     };
 
     try {
-      const res = await fetch(
-        "https://api.noroff.dev/api/v1/social/auth/login",
-        {
-          method: "POST",
-          body: JSON.stringify(payload),
-          headers: {
-            "Content-type": "application/json; charset=UTF-8",
-          },
-        }
-      );
+      const res = await supabase.auth.signInWithOAuth({
+        provider: "github",
+      });
 
       const data = await res.json();
 
@@ -78,6 +83,12 @@ export default function LoginPage() {
           </section>
         ) : (
           <form className="space-y-6" onSubmit={handleOnSubmit}>
+            <button
+              className="w-auto h-10 text-gray-900 bg-red"
+              onClick={signInWithOAuth}
+            >
+              Sign in with GitHub
+            </button>
             <div>
               <label
                 htmlFor="email"
